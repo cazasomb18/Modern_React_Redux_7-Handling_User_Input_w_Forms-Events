@@ -154,6 +154,130 @@
 	//Solution:
 		<input 
 			type={"password"} 
-			onChange={ e => this.setState({password: e.target.value }) } 
+			onChange={ e => this.setState({ password: e.target.value }) } 
 			value={this.state.password} 
 		/>
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Handling Form Submittal
+
+	//add the onSubmit prop to the <form>tag
+	{<form className="ui form" onSubmit={ this.onFormSubmit } action="submit"></form>}/*like so*/
+
+	//Create a function in the SearchBar class called onFormSubmit(){}to handle the form submission
+	// onFormSubmit(e){
+	// 	e.preventDefault();
+		//prevents the form from automatically submitting when the page is rendered, WE WILL ALWAYS USE THIS
+		//BY DEFAULT EVERYTIME WE'RE WORKING WITH A FORM TO PREVENT IT FROM SUBMITTING AUTOMATICALLY
+	// 	console.log(this.state.term)
+	// };
+		//however, when we submit the form after adding console.log(this.state.term); we get this error:
+			//TypeError: Cannot read property 'state' of undefined
+				//shoudl say: 'I CANNOT ACCESS THE PROPERTY STATE ON THE VALUE UNDEFINED'
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Understanding the 'this' in JS
+	//The root issue here is that JS thinks that the 'this' in this.state.term != class SearchBar 
+		//Thinks 'this' === undefined
+
+	//'THIS' in JS
+		//Instance of SearchBar
+			//state
+			//Render
+			//onFormSubmit
+				//^^^ 'this' means give me reference to the instance of class SearchBar
+
+				//it seems that 'this' only doesn't work inside of onFormSubmit(){}
+	
+	//An example:
+	class Car {
+	  setDriveSound(sound) {
+	    this.sound = sound;
+	  }
+	  
+	  drive() {
+	    return this.sound;
+	  }
+	}
+
+	const car = new Car();
+
+	car.setDriveSound('vroom');
+	car.drive();
+	//car.drive(); find function name.
+		//look @ dot to the left
+			//find the variable 
+				//that is the value of the 'this' variable
+					//'this' === class instance of car
+
+	const truck = {
+	  sound: 'putputput',
+	  driveMyTruck: car.drive
+	}
+
+	truck.driveMyTruck();
+
+	const drive = car.drive;
+
+	drive();
+	//Error
+		//Cannot read property 'sound' as undefined
+
+	//This error ^^^ happens for the same reason as ReactJS's error 
+		//TypeError: Cannot read property 'state' of undefined ... BECAUSE ...
+
+	//When we pass that callback down into the form element (onSubmit(){})
+		//then it gets invoked there is not this.onFormSubmit(){}
+			//calls that function on its own just like onSubmit(), this is undefined.
+	};
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Solving Context Issues
+	//Here's the solution to the previous error "Cannot read property 'sound' as undefined" due to 
+	//Will help us understand why event handler onFormSubmit() throws errors
+
+	//Solution 1 - bind the function in the constructor(){}
+		//When we bind a function, it will produce a new version of that function
+
+	constructor(){
+		this.drive = this.drive.bind(this);
+		//this.drive.bind(this); creates new function that will always have the correct value of 'this'
+			//there 'this' === car
+	};
+
+	//Solution 2 - turn onFormSubmit(e){} into an arrow function onFormSubmit = (e) => {};
+		//rather than assigning an object we are assigning an arrow function*****
+
+	state = { term: '' }
+	onFormSubmit = (e) => {
+		e.preventDefault();
+	};
+			//this makes sure that the value of 'this' is always === our instance of the SearchBar
+
+
+	//Solution 3 - Define an arrow function and passdown onFormSubmit in the <form>
+		//Change onFormSubmit back to this syntax: onFormSubmit(){};
+		//notice how our <input/> has a similar looking callback:
+		<input 	onChange={ e => this.setState({ term: e.target.value })} />
+			//in this case that callback gets passed down using the callback
+
+		<form className="ui form" onSubmit={(e)=> this.onFormSubmit(e)} action="submit"/>
+			//we're now defining an arrow function and passing it down in the form
+				//--> when form gets submitted it will call the arrow function
+					//will only invoke this.onFormSubmit() one time
+
+		//GENERALLY WE'LL USE SOLUTION 2 - assigning an arrow function
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Communicating Parent to the Child
