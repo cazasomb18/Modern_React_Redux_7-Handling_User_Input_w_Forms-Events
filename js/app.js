@@ -281,3 +281,45 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //Communicating Parent to the Child
+
+	//We need to reformulate the onFormSubmit() to make an API call to do an images search
+		//Where are we going to initiate the attempt to fetch some images?
+			//The only purpose of the searchbar is the allow user to types into some text.
+				//The API request would instead, be coming from the APP component.
+
+	//1 - Given ^^^ (we want api request to come from the APP component) - how are we going to get that search
+	//term from our search bar back up into our app component?
+		//@ this point we're only learned how communication bet. components via the props system
+			//props only allows us to pass info from the parent down to a child (top-down hierarchy)
+				//HOWEVER - there is a trick...
+
+	//1.A Planning Out the New Configuration for Our App
+		//a - We're going to turn the App comp. into a class-based comp.
+		//b - In here we'll define an callback method called { this.onSearchSubmit(){} }
+		//c - Whenever app comp. decides to show searchBar it's going to pass that method into the searchbar
+		//d - Searchbar hangs onto that method, 
+		//e - whenever use submits the form, will take callback and call callback with search term user entered
+			//**this will look very similar to this --> onSubmitmit={ e => this.onFormSubmit(e) }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Invoking Callbacks to Children
+	//Step 1 - Refactor App into a class-based component
+		class App extends React.Component {}
+
+	//Step 2 - Add onSearchSubmit(){} method to App component
+		onSearchSubmit(term){
+			console.log(term)
+		}
+
+	//Step 3 - Add this new method onto the SearchBar component instance from <App/>
+		<SearchBar onSubmit={this.onSeachSubmit} /> /*...like so*/
+		//Unlike built-in props like 'onChange' - since we have authored this prop (onSearchSubmit) we can add
+		//it into the SearchBar component and call it anything we want - onSubmit is very semantic, good practice.
+
+	//Step 4 - Call onSearchSubmit() in SearchBar component
+		//When we pass down props from parent to child where the child is a CLASS-BASED COMPONENT we use this syntax:
+			this.props.onSubmit(this.state.term)
+			// 'this' --> references the 'prop' object
+			// 'props.onSubmit()' --> calls the onSubmit() method from the props object
+			// 'this.state.term' --> places user's search term in as a parameter in onSubmit() method
